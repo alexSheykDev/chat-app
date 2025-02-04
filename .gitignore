@@ -26,6 +26,7 @@ jspm_packages/
 # Typescript compiled output
 dist/
 build/
+client_old/
 
 # Optional npm cache directory
 .npm
