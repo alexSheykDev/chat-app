@@ -18,8 +18,6 @@ export default async function ChatLayout({
 
   const { user } = session;
 
-  console.log(user.id);
-
   const chats = await getUserChatsAction(user.id);
 
   return (

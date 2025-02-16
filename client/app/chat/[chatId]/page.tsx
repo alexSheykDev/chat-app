@@ -6,6 +6,7 @@ import MessagesListing from "@/components/modules/Message/MessagesListing";
 import SendMessageArea from "@/components/modules/Message/SendMessageArea";
 import { IMessage } from "@/interfaces/message";
 import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 import React, { useEffect, useState, useCallback } from "react";
 
 interface MessageAreaProps {
@@ -64,6 +65,10 @@ export default function MessageArea({ params }: MessageAreaProps) {
 
   // Ensure user is logged in
   const userId = session?.user?.id;
+
+  if (!userId) {
+    redirect("/auth/login");
+  }
 
   return (
     <div className="flex flex-col justify-between w-full">
