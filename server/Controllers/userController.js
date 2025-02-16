@@ -3,10 +3,10 @@ const bcrypt = require('bcrypt');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 
-const createToken = (_id) => {
+const createToken = (_id, email) => {
   const jwtkey = process.env.JWT_SECRET_KEY;
 
-  return jwt.sign({ _id }, jwtkey, { expiresIn: '3d' });
+  return jwt.sign({ _id, email }, jwtkey, { expiresIn: '3d' });
 };
 
 const registerUser = async (req, res) => {
@@ -35,7 +35,7 @@ const registerUser = async (req, res) => {
 
     await user.save();
 
-    const token = createToken(user._id);
+    const token = createToken(user._id, email);
 
     res.status(200).json({ _id: user._id, name, email, token });
   } catch (error) {
@@ -57,7 +57,7 @@ const loginUser = async (req, res) => {
     if (!isValidPassword)
       return res.status(400).json('Invalid email or password.');
 
-    const token = createToken(user._id);
+    const token = createToken(user._id, email);
 
     res.status(200).json({ _id: user._id, name: user.name, email, token });
   } catch (error) {
@@ -67,29 +67,31 @@ const loginUser = async (req, res) => {
 };
 
 const findUser = async (req, res) => {
-  const userId = req.params.userId;
   try {
-    const user = await userModel.findById(userId);
+    const user = await userModel
+      .findById(req.params.userId)
+      .select('-password');
 
-    if (!user) return res.status(400).json('No user is found with this id.');
+    if (!user) return res.status(404).json({ message: 'User not found.' });
 
     res.status(200).json(user);
   } catch (error) {
-    console.log(error);
-    res.status(500).json(error);
+    console.error('Find User Error:', error);
+    res.status(500).json({ message: 'Internal server error.' });
   }
 };
 
 const getUsers = async (req, res) => {
   try {
-    const users = await userModel.find();
+    const users = await userModel.find().select('-password').lean();
 
-    if (!users) return res.status(400).json('No user is found with this id.');
+    if (!users.length)
+      return res.status(404).json({ message: 'No users found.' });
 
     res.status(200).json(users);
   } catch (error) {
-    console.log(error);
-    res.status(500).json(error);
+    console.error('Get Users Error:', error);
+    res.status(500).json({ message: 'Internal server error.' });
   }
 };
 

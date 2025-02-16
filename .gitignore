@@ -54,9 +54,6 @@ dist/
 # Vuepress build output
 .vuepress/dist
 
-# Hexo build output
-public/
-
 # Docusaurus build output
 build/
 
