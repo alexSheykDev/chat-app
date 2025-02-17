@@ -20,7 +20,6 @@ export default function ChatOnlineUsers({ chats }: ChatOnlineUsersProps) {
   const { data: session } = useSession();
   const router = useRouter();
 
-  // Fetch online users
   useEffect(() => {
     async function fetchUsers() {
       try {
@@ -38,7 +37,6 @@ export default function ChatOnlineUsers({ chats }: ChatOnlineUsersProps) {
     fetchUsers();
   }, [onlineUsers, session?.user?.id]);
 
-  // Handle user click (navigate to existing chat or create a new one)
   const handleUserClick = useCallback(
     async (userId: string) => {
       if (!session?.user?.id) return;
@@ -71,25 +69,31 @@ export default function ChatOnlineUsers({ chats }: ChatOnlineUsersProps) {
   );
 
   return (
-    <div>
-      <h2>Online Users</h2>
-      <div className="flex gap-x-4">
+    <div className="p-4">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold">Online Now</h2>
+        <p className="text-xs text-gray-500">More</p>
+      </div>
+
+      <div className="flex flex-nowrap gap-x-4 overflow-scroll">
         {users.map((user) => (
           <div
             key={user._id}
             onClick={() => handleUserClick(user._id)}
-            className="cursor-pointer"
+            className="cursor-pointer w-16"
           >
             <div className="relative">
-              <Avatar className="w-10 h-10">
+              <Avatar className="w-16 h-16">
                 <AvatarImage src="https://github.com/shadcn.png" />
                 <AvatarFallback>
                   {user.name.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <div className="absolute -right-1 bottom-1 z-1 w-3 h-3 rounded-full bg-green-500" />
+              <div className="absolute right-0 top-0 z-1 w-4 h-4 rounded-full bg-green-500" />
             </div>
-            <p>{user.name}</p>
+            <p className="mt-2 text-sm text-gray-500 text-center text-wrap">
+              {user.name}
+            </p>
           </div>
         ))}
       </div>

@@ -37,14 +37,18 @@ export default function MessageArea({ params }: MessageAreaProps) {
   useEffect(() => {
     if (!socket || !isConnected) return;
 
+    socket.emit("joinChat", chatId);
+
     socket.on("receiveMessage", (newMessage: IMessage) => {
-      setMessages((prev) => [...prev, newMessage]);
+      if (newMessage.chatId === chatId) {
+        setMessages((prev) => [...prev, newMessage]);
+      }
     });
 
     return () => {
       socket.off("receiveMessage");
     };
-  }, [socket, isConnected]);
+  }, [socket, isConnected, chatId]);
 
   const sendMessage = useCallback(
     (
@@ -63,7 +67,6 @@ export default function MessageArea({ params }: MessageAreaProps) {
     return <p>Loading...</p>;
   }
 
-  // Ensure user is logged in
   const userId = session?.user?.id;
 
   if (!userId) {
@@ -71,7 +74,7 @@ export default function MessageArea({ params }: MessageAreaProps) {
   }
 
   return (
-    <div className="flex flex-col justify-between w-full">
+    <div className="flex flex-col grow justify-between">
       <MessagesListing userId={userId} messages={messages} />
       <SendMessageArea userId={userId} sendMessage={sendMessage} />
     </div>

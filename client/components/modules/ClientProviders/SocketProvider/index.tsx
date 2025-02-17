@@ -21,19 +21,19 @@ interface SocketProviderProps {
 }
 
 export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
-  const { data: session } = useSession(); // ✅ Get user session from NextAuth
+  const { data: session } = useSession();
 
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
 
   useEffect(() => {
-    if (!session?.user?.id) return; // ✅ Don't connect if no authenticated user
+    if (!session?.user?.id) return;
 
     const socketInstance = io(process.env.NEXT_PUBLIC_BACKEND_URL as string, {
-      withCredentials: true, // ✅ Send credentials (cookies, headers)
-      transports: ["websocket"], // ✅ Force WebSockets to avoid polling issues
-      auth: { userId: session.user.id }, // ✅ Send userId via handshake
+      withCredentials: true,
+      transports: ["websocket"],
+      auth: { userId: session.user.id },
     });
 
     socketInstance.on("connect", () => setIsConnected(true));

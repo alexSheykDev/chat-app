@@ -6,6 +6,7 @@ import ChatEntity from "../ChatEntity";
 import formatTo12HourTime from "@/lib/helpers/formatTo12HourTime";
 import ChatOnlineUsers from "../ChatOnlineUsers";
 import { IChat } from "@/interfaces/chat";
+import { useSocket } from "../../ClientProviders/SocketProvider";
 
 interface ChatsListingProps {
   userId: string;
@@ -21,6 +22,7 @@ interface ChatDetails {
 
 export default function ChatsListing({ userId, chats }: ChatsListingProps) {
   const [chatDetails, setChatDetails] = useState<ChatDetails[]>([]);
+  const { onlineUsers } = useSocket();
 
   useEffect(() => {
     async function fetchChatDetails() {
@@ -54,9 +56,18 @@ export default function ChatsListing({ userId, chats }: ChatsListingProps) {
     fetchChatDetails();
   }, [userId, chats]);
 
+  const isRecipientOnline = (userId: string, chatId: string) => {
+    const chatMembers =
+      chats.find((chat) => chat._id === chatId)?.members || [];
+    const recipiendId =
+      chatMembers.find((memberId) => memberId !== userId) || "";
+    return onlineUsers.includes(recipiendId);
+  };
+
   return (
     <div className="w-80 border-r border-gray-300">
       <ChatOnlineUsers chats={chats} />
+      <h2 className="text-lg font-semibold px-4 mb-2">Messages</h2>
       {chatDetails.map((chat) => (
         <ChatEntity
           key={chat.id}
@@ -65,7 +76,7 @@ export default function ChatsListing({ userId, chats }: ChatsListingProps) {
           lastMessage={chat.lastMessageText}
           timestamp={chat.lastMessageTimestamp}
           isPinned
-          isOnline
+          isOnline={isRecipientOnline(userId, chat.id)}
         />
       ))}
     </div>
