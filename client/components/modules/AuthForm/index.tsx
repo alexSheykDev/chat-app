@@ -4,14 +4,20 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { z } from "zod";
 import { useState } from "react";
 import registerAction from "@/actions/auth/registerAction";
 import { signIn } from "next-auth/react";
+import Link from "next/link";
 
-// Define validation schemas using Zod
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
@@ -19,6 +25,7 @@ const registerSchema = z.object({
 });
 
 const loginSchema = z.object({
+  name: z.undefined(),
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
@@ -49,8 +56,6 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const onSubmit = async (data: RegisterFormData | LoginFormData) => {
     setServerError(null);
     try {
-      // Simulate API call
-
       const response = isRegister
         ? await registerAction(data as RegisterFormData)
         : await signIn("credentials", {
@@ -70,78 +75,96 @@ export default function AuthForm({ mode }: AuthFormProps) {
   };
 
   return (
-    <Card className="max-w-md mx-auto mt-10 p-6">
-      <CardHeader>
-        <CardTitle className="text-center text-xl">
-          {isRegister ? "Register" : "Login"}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {serverError && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{serverError}</AlertDescription>
-          </Alert>
-        )}
-
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {isRegister && (
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium">
-                Name
-              </label>
-              <Input
-                id="name"
-                {...register("name")}
-                placeholder="Enter your name"
-              />
-            </div>
+    <div className="flex-1">
+      <Card className="max-w-md mx-auto mt-10 p-6">
+        <CardHeader>
+          <CardTitle className="text-center text-xl">
+            {isRegister ? "Register" : "Login"}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {serverError && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{serverError}</AlertDescription>
+            </Alert>
           )}
 
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium">
-              Email
-            </label>
-            <Input
-              id="email"
-              {...register("email")}
-              placeholder="Enter your email"
-            />
-            {errors.email && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.email.message}
-              </p>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {isRegister && (
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium">
+                  Name
+                </label>
+                <Input
+                  id="name"
+                  {...register("name")}
+                  placeholder="Enter your name"
+                />
+                {errors.name && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.name.message}
+                  </p>
+                )}
+              </div>
             )}
-          </div>
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium">
-              Password
-            </label>
-            <Input
-              id="password"
-              type="password"
-              {...register("password")}
-              placeholder="Enter your password"
-            />
-            {errors.password && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.password.message}
-              </p>
-            )}
-          </div>
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium">
+                Email
+              </label>
+              <Input
+                id="email"
+                {...register("email")}
+                placeholder="Enter your email"
+              />
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.email.message}
+                </p>
+              )}
+            </div>
 
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting
-              ? isRegister
-                ? "Registering..."
-                : "Logging in..."
-              : isRegister
-                ? "Register"
-                : "Login"}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium">
+                Password
+              </label>
+              <Input
+                id="password"
+                type="password"
+                {...register("password")}
+                placeholder="Enter your password"
+              />
+              {errors.password && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
+
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting
+                ? isRegister
+                  ? "Registering..."
+                  : "Logging in..."
+                : isRegister
+                  ? "Register"
+                  : "Login"}
+            </Button>
+          </form>
+        </CardContent>
+        <CardFooter>
+          <p>
+            {isRegister ? "Already have an account?" : "Don't have an account?"}
+          </p>
+          <Link
+            className="ml-3 text-base font-bold"
+            href={isRegister ? "/auth/login" : "/auth/register"}
+          >
+            {isRegister ? "Log In" : "Sign up"}
+          </Link>
+        </CardFooter>
+      </Card>
+    </div>
   );
 }

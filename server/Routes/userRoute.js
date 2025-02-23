@@ -20,5 +20,7 @@ router.get('/find/:userId', (req, res) => {
 router.get('/', (req, res) => {
   getUsers(req, res);
 });
-
+/* router.put('/update/:userId', (req, res) => {
+  updateUser(req, res);
+}); */
 module.exports = router;

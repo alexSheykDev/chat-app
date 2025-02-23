@@ -13,28 +13,28 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Missing email or password");
+          throw new Error("Email and password are required.");
         }
 
         try {
-          const loginResponse = await loginAction({
+          const user = await loginAction({
             email: credentials.email,
             password: credentials.password,
           });
 
-          if (!loginResponse || !loginResponse._id) {
-            throw new Error("Invalid email or password");
+          if (!user || !user._id) {
+            throw new Error("❌ Invalid email or password.");
           }
 
           return {
-            id: loginResponse._id,
-            name: loginResponse.name,
-            email: loginResponse.email,
-            accessToken: loginResponse.token,
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            accessToken: user.token,
           } as CustomUser;
         } catch (error) {
-          console.error("Authorize Error:", error);
-          throw new Error("Authentication failed");
+          console.error("🛑 Authorization Error:", error);
+          throw new Error("🚨 Authentication failed.");
         }
       },
     }),
@@ -43,19 +43,31 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
+      // If user logs in, store their data in the token
       if (user) {
         token.id = user.id;
+        token.email = user.email;
+        token.name = user.name;
         token.accessToken = (user as CustomUser).accessToken;
       }
+
+      // When session update is triggered, re-fetch token if needed
+      if (trigger === "update" && token.accessToken) {
+        console.info("🔄 JWT Update Triggered");
+      }
+
       return token;
     },
 
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string;
-        session.user.accessToken = token.accessToken as string;
-      }
+      session.user = {
+        id: token.id,
+        email: token.email,
+        name: token.name,
+        accessToken: token.accessToken,
+      };
+
       return session;
     },
   },
@@ -66,5 +78,4 @@ export const authOptions: NextAuthOptions = {
 };
 
 const handler = NextAuth(authOptions);
-
 export { handler as GET, handler as POST };
