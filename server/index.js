@@ -46,10 +46,10 @@ const onlineUsers = new Map();
 // Socket.io logic
 /* io.use(verifySocketToken); */
 io.on('connection', async (socket) => {
-  console.log(`⚡ User connected: ${socket.id}`);
+  console.log(`User connected: ${socket.id}`);
 
   // Extract user ID from the token or handshake data
-  const userId = socket.handshake.auth?.userId; 
+  const userId = socket.handshake.auth?.userId;
 
   if (userId) {
     onlineUsers.set(socket.id, userId);
@@ -60,15 +60,15 @@ io.on('connection', async (socket) => {
     io.emit('updateOnlineUsers', Array.from(new Set(onlineUsers.values())));
   }
 
-  socket.on("joinChat", (chatId) => {
+  socket.on('joinChat', (chatId) => {
     socket.join(chatId);
   });
 
-  socket.on("sendMessage", async ({ chatId, senderId, text }) => {
+  socket.on('sendMessage', async ({ chatId, senderId, text }) => {
     const message = new messageModel({ chatId, senderId, text });
     await message.save();
 
-    io.to(chatId).emit("receiveMessage", message);
+    io.to(chatId).emit('receiveMessage', message);
   });
 
   socket.on('disconnect', async () => {
@@ -82,7 +82,7 @@ io.on('connection', async (socket) => {
     }
 
     io.emit('updateOnlineUsers', Array.from(new Set(onlineUsers.values())));
-    console.log(`❌ User disconnected: ${socket.id}`);
+    console.log(`User disconnected: ${socket.id}`);
   });
 });
 
