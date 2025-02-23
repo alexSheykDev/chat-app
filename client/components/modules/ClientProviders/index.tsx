@@ -7,7 +7,7 @@ const ClientProviders = ({
   children: React.ReactNode;
 }>) => {
   return (
-    <SessionProvider>
+    <SessionProvider refetchOnWindowFocus>
       <SocketProvider>{children}</SocketProvider>
     </SessionProvider>
   );
