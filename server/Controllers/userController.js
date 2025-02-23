@@ -3,10 +3,10 @@ const bcrypt = require('bcrypt');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 
-const createToken = (_id, email) => {
+const createToken = (_id, email, name) => {
   const jwtkey = process.env.JWT_SECRET_KEY;
 
-  return jwt.sign({ _id, email }, jwtkey, { expiresIn: '3d' });
+  return jwt.sign({ _id, email, name }, jwtkey, { expiresIn: '3d' });
 };
 
 const registerUser = async (req, res) => {
@@ -35,7 +35,7 @@ const registerUser = async (req, res) => {
 
     await user.save();
 
-    const token = createToken(user._id, email);
+    const token = createToken(user._id, email, name );
 
     res.status(200).json({ _id: user._id, name, email, token });
   } catch (error) {
@@ -57,7 +57,7 @@ const loginUser = async (req, res) => {
     if (!isValidPassword)
       return res.status(400).json('Invalid email or password.');
 
-    const token = createToken(user._id, email);
+    const token = createToken(user._id, email, user.name);
 
     res.status(200).json({ _id: user._id, name: user.name, email, token });
   } catch (error) {
