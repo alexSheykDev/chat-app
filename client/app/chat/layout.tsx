@@ -21,9 +21,9 @@ export default async function ChatLayout({
   const chats = await getUserChatsAction(user.id);
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col h-screen">
       <Header />
-      <div className="flex grow h-full">
+      <div className="flex grow h-[calc(100%-64px)]">
         <ChatsListing userId={user?.id} chats={chats} />
         {children}
       </div>

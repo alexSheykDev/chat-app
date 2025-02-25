@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { useState, useCallback, useEffect } from "react";
 import InputEmoji from "react-input-emoji";
 import { useSocket } from "../../ClientProviders/SocketProvider";
+import { Button } from "@/components/ui/button";
 
 interface SendMessageProps {
   sendMessage: (
@@ -65,7 +66,7 @@ export default function SendMessageArea({
   }, [textMessage, chatId, userId, sendMessage]);
 
   return (
-    <div className="flex justify-center pb-16">
+    <div className="flex flex-col justify-center items-center pb-16">
       {typingUsers.length > 0 && (
         <p className="text-gray-500">
           {typingUsers.length === 1
@@ -73,7 +74,7 @@ export default function SendMessageArea({
             : "Multiple people are typing..."}
         </p>
       )}
-      <div className="flex flex-col w-full max-w-[520px]">
+      <div className="flex items-center w-full max-w-[520px]">
         <InputEmoji
           value={textMessage}
           onChange={setTextMessage}
@@ -83,13 +84,9 @@ export default function SendMessageArea({
           fontFamily="nunito"
           borderColor="rgba(72, 112, 223, 0.2)"
         />
-        <button
-          className="self-end bg-blue-500 text-white px-4 py-2 rounded-md disabled:opacity-50"
-          onClick={handleSendMessage}
-          disabled={!textMessage.trim()}
-        >
+        <Button onClick={handleSendMessage} disabled={!textMessage.trim()}>
           Send
-        </button>
+        </Button>
       </div>
     </div>
   );
