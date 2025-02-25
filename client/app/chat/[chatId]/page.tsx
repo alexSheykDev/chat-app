@@ -37,7 +37,7 @@ export default function MessageArea({ params }: MessageAreaProps) {
   useEffect(() => {
     if (!socket || !isConnected) return;
 
-    socket.emit("joinChat", chatId);
+    socket.emit("joinChat", { chatId });
 
     socket.on("receiveMessage", (newMessage: IMessage) => {
       if (newMessage.chatId === chatId) {
@@ -58,6 +58,10 @@ export default function MessageArea({ params }: MessageAreaProps) {
       if (socket && chatId) {
         socket.emit("sendMessage", data);
         setMessage("");
+        socket.emit("stopTyping", {
+          chatId,
+          senderId: data.senderId,
+        });
       }
     },
     [socket, chatId],

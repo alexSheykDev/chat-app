@@ -60,8 +60,17 @@ io.on('connection', async (socket) => {
     io.emit('updateOnlineUsers', Array.from(new Set(onlineUsers.values())));
   }
 
-  socket.on('joinChat', (chatId) => {
-    socket.join(chatId);
+  socket.on('joinChat', ({ chatId }) => {
+    console.log(`Joining chat ${chatId} by ${socket.id}`)
+    socket.join(chatId)
+  } );
+
+  socket.on("typing", ({ chatId, senderId }) => {
+    socket.to(chatId).emit("userTyping", { senderId });
+  });
+
+  socket.on("stopTyping", ({ chatId, senderId }) => {
+    socket.to(chatId).emit("userStoppedTyping", { senderId });
   });
 
   socket.on('sendMessage', async ({ chatId, senderId, text }) => {
