@@ -50,13 +50,13 @@ io.on('connection', async (socket) => {
 
   // Extract user ID from the token or handshake data
   const userId = socket.handshake.auth?.userId;
+  const userData = await userModel.findById(userId).select('-password');
 
   if (userId) {
     onlineUsers.set(socket.id, userId);
 
-    await userModel.findByIdAndUpdate(userId, { online: true });
-
     // Emit updated online users to all clients
+    socket.broadcast.emit("userConnected", { userId, name: userData.name });
     io.emit('updateOnlineUsers', Array.from(new Set(onlineUsers.values())));
   }
 

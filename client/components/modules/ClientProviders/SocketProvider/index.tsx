@@ -1,3 +1,4 @@
+import { useToast } from "@/hooks/use-toast";
 import { useSession } from "next-auth/react";
 import {
   createContext,
@@ -22,6 +23,7 @@ interface SocketProviderProps {
 
 export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   const { data: session } = useSession();
+  const { toast } = useToast();
 
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -41,10 +43,17 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     });
 
     socketInstance.on("connect", () => setIsConnected(true));
+
     socketInstance.on("disconnect", () => setIsConnected(false));
 
     socketInstance.on("updateOnlineUsers", (users: string[]) => {
       setOnlineUsers(users);
+    });
+    socketInstance.on("userConnected", ({ name }) => {
+      toast({
+        title: "Hey! Someone is back",
+        description: `Check if you need to write something to ${name}`,
+      });
     });
 
     setSocket(socketInstance);
@@ -52,7 +61,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     return () => {
       socketInstance.disconnect();
     };
-  }, [session?.user?.id]);
+  }, [session?.user.id, toast]);
 
   return (
     <SocketContext.Provider value={{ socket, isConnected, onlineUsers }}>

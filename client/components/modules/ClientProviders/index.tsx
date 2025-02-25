@@ -1,6 +1,7 @@
 "use client";
 import { SessionProvider } from "next-auth/react";
 import { SocketProvider } from "./SocketProvider";
+import { Toaster } from "@/components/ui/toaster";
 const ClientProviders = ({
   children,
 }: Readonly<{
@@ -8,7 +9,10 @@ const ClientProviders = ({
 }>) => {
   return (
     <SessionProvider refetchOnWindowFocus>
-      <SocketProvider>{children}</SocketProvider>
+      <SocketProvider>
+        {children}
+        <Toaster />
+      </SocketProvider>
     </SessionProvider>
   );
 };
