@@ -34,6 +34,10 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
       withCredentials: true,
       transports: ["websocket"],
       auth: { userId: session.user.id },
+      autoConnect: true,
+      reconnection: true,
+      reconnectionAttempts: 10,
+      reconnectionDelay: 1000,
     });
 
     socketInstance.on("connect", () => setIsConnected(true));
