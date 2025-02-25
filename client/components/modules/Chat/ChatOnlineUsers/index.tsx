@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useSocket } from "../../ClientProviders/SocketProvider";
 import getUsersAction from "@/actions/user/getUsersAction";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -24,18 +24,15 @@ export default function ChatOnlineUsers({ chats }: ChatOnlineUsersProps) {
     async function fetchUsers() {
       try {
         const usersData = await getUsersAction();
-        const onlineUsers = usersData.filter(
-          (user) => user.online && user._id !== session?.user?.id,
-        );
 
-        setUsers(onlineUsers);
+        setUsers(usersData);
       } catch (error) {
         console.error("Error fetching users:", error);
       }
     }
 
     fetchUsers();
-  }, [onlineUsers, session?.user?.id]);
+  }, []);
 
   const handleUserClick = useCallback(
     async (userId: string) => {
@@ -68,6 +65,13 @@ export default function ChatOnlineUsers({ chats }: ChatOnlineUsersProps) {
     [chats, router, session?.user?.id],
   );
 
+  const filteredUsers = useMemo(() => {
+    return users.filter(
+      (user) =>
+        session?.user?.id !== user._id && onlineUsers.includes(user._id),
+    );
+  }, [onlineUsers, session?.user?.id, users]);
+
   return (
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
@@ -76,7 +80,7 @@ export default function ChatOnlineUsers({ chats }: ChatOnlineUsersProps) {
       </div>
 
       <div className="flex flex-nowrap gap-x-4 overflow-scroll">
-        {users.map((user) => (
+        {filteredUsers.map((user) => (
           <div
             key={user._id}
             onClick={() => handleUserClick(user._id)}
