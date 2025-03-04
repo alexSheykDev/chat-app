@@ -1,8 +1,9 @@
 import { IMessage } from "@/interfaces/message";
-import RecipientMessage from "../RecipientMessage";
-import UserMessage from "../UserMessage";
+import RecipientMessage from "@/components/modules/Message/RecipientMessage";
+import UserMessage from "@/components/modules/Message/UserMessage";
 import { format } from "date-fns";
 import { useEffect, useRef } from "react";
+import NoMessagesView from "@/components/modules/Message/NoMessagesView";
 
 interface MessagesListingProps {
   userId: string;
@@ -21,6 +22,10 @@ export default function MessagesListing({
 
   let lastDate: string | null = null;
 
+  if (messages.length === 0) {
+    return <NoMessagesView />;
+  }
+
   return (
     <div className="flex flex-col gap-y-5 py-2 px-16 overflow-auto">
       {messages.map(({ _id, senderId, text, updatedAt }) => {
@@ -29,20 +34,27 @@ export default function MessagesListing({
         lastDate = messageDate;
 
         return (
-          <div key={_id}>
+          <>
             {showDateSeparator && (
-              <div className="flex justify-center my-2">
+              <div
+                key={`${_id}-${updatedAt}`}
+                className="flex justify-center my-2"
+              >
                 <span className="text-sm text-gray-500 bg-gray-200 px-3 py-1 rounded-md">
                   {format(new Date(updatedAt), "MMMM d, yyyy")}
                 </span>
               </div>
             )}
             {senderId === userId ? (
-              <UserMessage textMessage={text} timestamp={updatedAt} />
+              <UserMessage key={_id} textMessage={text} timestamp={updatedAt} />
             ) : (
-              <RecipientMessage textMessage={text} timestamp={updatedAt} />
+              <RecipientMessage
+                key={_id}
+                textMessage={text}
+                timestamp={updatedAt}
+              />
             )}
-          </div>
+          </>
         );
       })}
       <div ref={messagesEndRef} />
