@@ -7,10 +7,7 @@ export default async function AuthLayout({
 }>) {
   return (
     <div className="h-screen flex">
-      {/* Left Side (Children) */}
       <div className="flex-1 flex items-center justify-center">{children}</div>
-
-      {/* Right Side (Image Block) */}
       <div className="flex-1">
         <Image
           src="/auth-cover.webp"

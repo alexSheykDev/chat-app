@@ -13,5 +13,3 @@ export interface IUserResponse {
   email: string;
   token: string;
 }
-
-export type GetUsersResponse = IUser[];
