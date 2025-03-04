@@ -3,6 +3,7 @@
 import getChatMessagesAction from "@/actions/message/getChatMessagesAction";
 import { useSocket } from "@/components/modules/ClientProviders/SocketProvider";
 import MessagesListing from "@/components/modules/Message/MessagesListing";
+import NoMessagesView from "@/components/modules/Message/NoMessagesView";
 import SendMessageArea from "@/components/modules/Message/SendMessageArea";
 import { IMessage } from "@/interfaces/message";
 import { useSession } from "next-auth/react";
@@ -17,7 +18,7 @@ export default function MessageArea({ params }: MessageAreaProps) {
   const { chatId } = React.use(params);
   const { data: session, status } = useSession();
   const { socket, isConnected } = useSocket();
-  const [messages, setMessages] = useState<IMessage[]>([]);
+  const [messages, setMessages] = useState<IMessage[] | null>(null);
 
   useEffect(() => {
     async function fetchMessages() {
@@ -41,7 +42,7 @@ export default function MessageArea({ params }: MessageAreaProps) {
 
     socket.on("receiveMessage", (newMessage: IMessage) => {
       if (newMessage.chatId === chatId) {
-        setMessages((prev) => [...prev, newMessage]);
+        setMessages((prev) => [...(prev as IMessage[]), newMessage]);
       }
     });
 
@@ -79,7 +80,10 @@ export default function MessageArea({ params }: MessageAreaProps) {
 
   return (
     <div className="flex flex-col grow justify-between">
-      <MessagesListing userId={userId} messages={messages} />
+      {messages && messages.length === 0 && <NoMessagesView />}
+      {messages && messages.length > 0 && (
+        <MessagesListing userId={userId} messages={messages} />
+      )}
       <SendMessageArea userId={userId} sendMessage={sendMessage} />
     </div>
   );

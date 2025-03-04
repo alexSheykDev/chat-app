@@ -2,8 +2,7 @@ import { IMessage } from "@/interfaces/message";
 import RecipientMessage from "@/components/modules/Message/RecipientMessage";
 import UserMessage from "@/components/modules/Message/UserMessage";
 import { format } from "date-fns";
-import { useEffect, useRef } from "react";
-import NoMessagesView from "@/components/modules/Message/NoMessagesView";
+import React, { useEffect, useRef } from "react";
 
 interface MessagesListingProps {
   userId: string;
@@ -22,10 +21,6 @@ export default function MessagesListing({
 
   let lastDate: string | null = null;
 
-  if (messages.length === 0) {
-    return <NoMessagesView />;
-  }
-
   return (
     <div className="flex flex-col gap-y-5 py-2 px-16 overflow-auto">
       {messages.map(({ _id, senderId, text, updatedAt }) => {
@@ -34,7 +29,7 @@ export default function MessagesListing({
         lastDate = messageDate;
 
         return (
-          <>
+          <React.Fragment key={`${_id}`}>
             {showDateSeparator && (
               <div
                 key={`${_id}-${updatedAt}`}
@@ -54,7 +49,7 @@ export default function MessagesListing({
                 timestamp={updatedAt}
               />
             )}
-          </>
+          </React.Fragment>
         );
       })}
       <div ref={messagesEndRef} />
