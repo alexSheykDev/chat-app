@@ -7,6 +7,7 @@ import formatTo12HourTime from "@/lib/helpers/formatTo12HourTime";
 import ChatOnlineUsers from "../ChatOnlineUsers";
 import { IChat } from "@/interfaces/chat";
 import { useSocket } from "../../ClientProviders/SocketProvider";
+import { IMessage } from "@/interfaces/message";
 
 interface ChatsListingProps {
   userId: string;
@@ -22,7 +23,7 @@ interface ChatDetails {
 
 export default function ChatsListing({ userId, chats }: ChatsListingProps) {
   const [chatDetails, setChatDetails] = useState<ChatDetails[]>([]);
-  const { onlineUsers } = useSocket();
+  const { onlineUsers, socket, isConnected } = useSocket();
 
   useEffect(() => {
     async function fetchChatDetails() {
@@ -55,6 +56,30 @@ export default function ChatsListing({ userId, chats }: ChatsListingProps) {
 
     fetchChatDetails();
   }, [userId, chats]);
+
+  useEffect(() => {
+    if (!socket || !isConnected) return;
+
+    const handleNewMessage = (newMessage: IMessage) => {
+      setChatDetails((prevChatDetails) => {
+        return prevChatDetails.map((chat) =>
+          chat.id === newMessage.chatId
+            ? {
+                ...chat,
+                lastMessageText: newMessage.text,
+                lastMessageTimestamp: formatTo12HourTime(newMessage.updatedAt),
+              }
+            : chat,
+        );
+      });
+    };
+
+    socket.on("updateChatDetails", handleNewMessage);
+
+    return () => {
+      socket.off("updateChatDetails", handleNewMessage);
+    };
+  }, [socket, isConnected]);
 
   const isRecipientOnline = (userId: string, chatId: string) => {
     const chatMembers =

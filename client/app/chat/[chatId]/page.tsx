@@ -47,6 +47,7 @@ export default function MessageArea({ params }: MessageAreaProps) {
     });
 
     return () => {
+      socket.emit("leaveChat", { chatId });
       socket.off("receiveMessage");
     };
   }, [socket, isConnected, chatId]);

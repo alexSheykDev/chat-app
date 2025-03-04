@@ -9,6 +9,7 @@ const messageRoute = require('./Routes/messageRoute');
 const { verifySocketToken } = require('./middleware/auth');
 const messageModel = require('./Models/messageModel');
 const userModel = require('./Models/userModel');
+const chatModel = require('./Models/chatModel');
 
 const app = express();
 const server = http.createServer(app);
@@ -61,9 +62,12 @@ io.on('connection', async (socket) => {
   }
 
   socket.on('joinChat', ({ chatId }) => {
-    console.log(`Joining chat ${chatId} by ${socket.id}`)
     socket.join(chatId)
   } );
+
+  socket.on("leavenChat", ({ chatId }) => {
+    socket.leave(chatId);
+  });
 
   socket.on("typing", ({ chatId, senderId }) => {
     socket.to(chatId).emit("userTyping", { senderId });
@@ -77,18 +81,18 @@ io.on('connection', async (socket) => {
     const message = new messageModel({ chatId, senderId, text });
     await message.save();
 
-    io.to(chatId).emit('receiveMessage', message);
+    await chatModel.findByIdAndUpdate(
+      chatId,
+      { lastMessageId: message._id },
+      { new: true }
+    );
+
+    io.emit('receiveMessage', message);
+    io.emit('updateChatDetails', message);
   });
 
   socket.on('disconnect', async () => {
-    const userId = onlineUsers.get(socket.id);
     onlineUsers.delete(socket.id);
-
-    // Check if the user is still connected on another socket
-    const isStillOnline = [...onlineUsers.values()].includes(userId);
-    if (!isStillOnline) {
-      await userModel.findByIdAndUpdate(userId, { online: false });
-    }
 
     io.emit('updateOnlineUsers', Array.from(new Set(onlineUsers.values())));
     console.log(`User disconnected: ${socket.id}`);
