@@ -2,20 +2,20 @@
 
 import getUserDetailsAction from "../user/getUserDetailsAction";
 import getMessageByIdAction from "../message/getMessageByIdAction";
-import { GetChatDetailsResponse } from "@/interfaces/chat";
+import { IChatDetails } from "@/interfaces/chat";
 
 export default async function getChatDetailsAction(
   userId: string,
   members: string[],
   lastMessageId?: string,
-): Promise<GetChatDetailsResponse> {
+): Promise<IChatDetails | null> {
+  const recipientId = members.find((id) => id !== userId);
+
+  if (!recipientId) {
+    throw new Error("Recipient ID could not be determined.");
+  }
+
   try {
-    const recipientId = members.find((id) => id !== userId);
-
-    if (!recipientId) {
-      throw new Error("Recipient ID could not be determined.");
-    }
-
     // Fetch recipient details and last message of the chat
     const [recipient, lastMessage] = await Promise.all([
       getUserDetailsAction(recipientId),

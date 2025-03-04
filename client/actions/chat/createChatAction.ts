@@ -1,18 +1,18 @@
 "use server";
 
-import { CreateChatRequest, CreateChatResponse } from "@/interfaces/chat";
+import { CreateChatRequest, IChat } from "@/interfaces/chat";
 import getBackendUrl from "@/lib/helpers/getBackendUrl";
 import Fetcher from "@/utils/fetcher";
 
 export default async function createChatAction(
   chatData: CreateChatRequest,
-): Promise<CreateChatResponse> {
+): Promise<IChat | null> {
   const chatPath = `${getBackendUrl()}api/chats`;
 
   const fetcher = new Fetcher();
 
   try {
-    const chatResponse: CreateChatResponse = await fetcher.post(
+    const chatResponse: IChat | null = await fetcher.post(
       chatPath,
       chatData as never,
     );

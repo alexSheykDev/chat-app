@@ -1,12 +1,12 @@
 "use server";
 
-import { GetUserChatsResponse, IChat } from "@/interfaces/chat";
+import { IChat } from "@/interfaces/chat";
 import getBackendUrl from "@/lib/helpers/getBackendUrl";
 import Fetcher from "@/utils/fetcher";
 
 export default async function getUserChatsAction(
   userId: string,
-): Promise<GetUserChatsResponse> {
+): Promise<IChat[] | []> {
   if (!userId) {
     console.warn("getUserChatsAction: No user ID provided.");
     return [];
