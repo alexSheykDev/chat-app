@@ -44,6 +44,8 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 
     socketInstance.on("connect", () => setIsConnected(true));
 
+    // TODO: Socket.onReconnect
+
     socketInstance.on("disconnect", () => setIsConnected(false));
 
     socketInstance.on("updateOnlineUsers", (users: string[]) => {

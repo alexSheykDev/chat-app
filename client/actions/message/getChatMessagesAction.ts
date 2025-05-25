@@ -12,6 +12,7 @@ export default async function getChatMessagesAction(
     return [];
   }
 
+  // Add fetcher initialization to the block tra catch
   const fetcher = new Fetcher();
 
   const messagePath = `${getBackendUrl()}api/messages/${chatId}`;
