@@ -4,11 +4,9 @@ import http from 'http';
 import mongoose from 'mongoose';
 import { Server as SocketIOServer } from 'socket.io';
 /* import { verifySocketToken } from './middleware/auth'; */
-import userModel from './Models/userModel';
 
 import { registerRoutes } from './Routes';
-import messageModel from './Models/messageModel';
-import chatModel from './Models/chatModel';
+import { SocketManager } from './sockets';
 
 export class AppServer {
   private app: Application;
@@ -17,6 +15,8 @@ export class AppServer {
   private readonly port: number = Number(process.env.PORT) || 5001;
   private readonly mongoURI: string = process.env.ATLAS_URI || '';
   private onlineUsers: Map<string, string> = new Map();
+  private socketManager: SocketManager;
+
 
   constructor() {
     this.app = express();
@@ -28,10 +28,11 @@ export class AppServer {
         credentials: true,
       },
     });
+    this.socketManager = new SocketManager(this.io);
 
     this.initializeMiddlewares();
     this.initializeRoutes();
-    this.initializeSocketEvents();
+    this.socketManager.initialize();
     this.connectToDatabase();
   }
 
@@ -48,9 +49,6 @@ export class AppServer {
 
   private initializeRoutes(): void {
     registerRoutes(this.app);
-    /* this.app.use('/api/users', UserRoute);
-    this.app.use('/api/chats', chatRoute);
-    this.app.use('/api/messages', messageRoute); */
   }
 
   private connectToDatabase(): void {
@@ -58,60 +56,6 @@ export class AppServer {
       .connect(this.mongoURI)
       .then(() => console.log('MongoDB connection established'))
       .catch((error) => console.log(`MongoDB connection failed: ${error.message}`));
-  }
-
-  private initializeSocketEvents(): void {
-    // Optional: this.io.use(verifySocketToken);
-
-    this.io.on('connection', async (socket) => {
-      console.log(`User connected: ${socket.id}`);
-
-      const userId = socket.handshake.auth?.userId;
-
-      if (userId) {
-        const userData = await userModel.findById(userId).select('-password');
-        this.onlineUsers.set(socket.id, userId);
-
-        socket.broadcast.emit('userConnected', { userId, name: userData?.name });
-        this.io.emit('updateOnlineUsers', Array.from(new Set(this.onlineUsers.values())));
-      }
-
-      socket.on('joinChat', ({ chatId }) => {
-        socket.join(chatId);
-      });
-
-      socket.on('leavenChat', ({ chatId }) => {
-        socket.leave(chatId);
-      });
-
-      socket.on('typing', ({ chatId, senderId }) => {
-        socket.to(chatId).emit('userTyping', { senderId });
-      });
-
-      socket.on('stopTyping', ({ chatId, senderId }) => {
-        socket.to(chatId).emit('userStoppedTyping', { senderId });
-      });
-
-      socket.on('sendMessage', async ({ chatId, senderId, text }) => {
-        const message = new messageModel({ chatId, senderId, text });
-        await message.save();
-
-        await chatModel.findByIdAndUpdate(
-          chatId,
-          { lastMessageId: message._id },
-          { new: true }
-        );
-
-        this.io.emit('receiveMessage', message);
-        this.io.emit('updateChatDetails', message);
-      });
-
-      socket.on('disconnect', () => {
-        this.onlineUsers.delete(socket.id);
-        this.io.emit('updateOnlineUsers', Array.from(new Set(this.onlineUsers.values())));
-        console.log(`User disconnected: ${socket.id}`);
-      });
-    });
   }
 
   public listen(): void {
