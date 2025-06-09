@@ -9,6 +9,7 @@ import createChatAction from "@/actions/chat/createChatAction";
 import { useRouter } from "next/navigation";
 import { IUser } from "@/interfaces/user";
 import { IChat } from "@/interfaces/chat";
+import { CreateGroupChatForm } from "../CreateGroupChatForm";
 
 interface ChatOnlineUsersProps {
   chats: IChat[];
@@ -25,7 +26,7 @@ export default function ChatOnlineUsers({ chats }: ChatOnlineUsersProps) {
       try {
         const usersData = await getUsersAction();
 
-        setUsers(usersData);
+        if (usersData) setUsers(usersData);
       } catch (error) {
         console.error("Error fetching users:", error);
       }
@@ -76,6 +77,7 @@ export default function ChatOnlineUsers({ chats }: ChatOnlineUsersProps) {
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">Online Now</h2>
+        <CreateGroupChatForm />
         <p className="text-xs text-gray-500">More</p>
       </div>
 

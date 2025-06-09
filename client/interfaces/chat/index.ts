@@ -17,4 +17,10 @@ export interface CreateChatRequest {
   secondId: string;
 }
 
+export interface CreateGroupChatRequest {
+  groupName: string;
+  memberIds: string[];
+  adminId: string;
+}
+
 export type GetUserChatsResponse = IChat[] | [];
