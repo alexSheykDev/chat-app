@@ -5,6 +5,7 @@ import { useState, useCallback, useEffect } from "react";
 import InputEmoji from "react-input-emoji";
 import { useSocket } from "../../ClientProviders/SocketProvider";
 import { Button } from "@/components/ui/button";
+import { IUser } from "@/interfaces/user";
 
 interface SendMessageProps {
   sendMessage: (
@@ -12,11 +13,13 @@ interface SendMessageProps {
     setMessage: (msg: string) => void,
   ) => void;
   userId: string;
+  membersMap: Record<string, IUser>;
 }
 
 export default function SendMessageArea({
   sendMessage,
   userId,
+  membersMap,
 }: SendMessageProps) {
   const { socket, isConnected } = useSocket();
   const [textMessage, setTextMessage] = useState<string>("");
@@ -68,10 +71,11 @@ export default function SendMessageArea({
   return (
     <div className="flex flex-col justify-center items-center pb-16">
       {typingUsers.length > 0 && (
-        <p className="text-gray-500">
-          {typingUsers.length === 1
-            ? "User is typing..."
-            : "Multiple people are typing..."}
+        <p className="text-gray-500 text-sm mb-2">
+          {typingUsers
+            .map((id) => membersMap[id]?.name || "Someone")
+            .join(", ")}{" "}
+          {typingUsers.length === 1 ? "is typing..." : "are typing..."}
         </p>
       )}
       <div className="flex items-center w-full max-w-[520px]">

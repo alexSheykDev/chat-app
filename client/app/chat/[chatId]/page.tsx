@@ -105,7 +105,11 @@ export default function MessageArea({ params }: MessageAreaProps) {
           membersMap={membersMap}
         />
       )}
-      <SendMessageArea userId={userId} sendMessage={sendMessage} />
+      <SendMessageArea
+        userId={userId}
+        sendMessage={sendMessage}
+        membersMap={membersMap}
+      />
     </div>
   );
 }
