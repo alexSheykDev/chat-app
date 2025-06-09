@@ -1,4 +1,3 @@
-// src/controllers/MessageController.ts
 import { Request, Response } from 'express';
 import messageModel from '../Models/messageModel';
 import chatModel from '../Models/chatModel';

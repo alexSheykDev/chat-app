@@ -1,4 +1,3 @@
-// src/controllers/ChatController.ts
 import { Request, Response } from 'express';
 import chatModel from '../Models/chatModel';
 import { Types } from 'mongoose';
@@ -57,14 +56,10 @@ export class ChatController {
   public async findUserChats(req: Request, res: Response): Promise<void> {
     const { userId } = req.params;
 
-    console.log(userId)
-
     try {
       const chats = await chatModel.find({
         members: { $in: [new Types.ObjectId(userId)] },
       });
-
-      console.log(chats)
 
       res.status(200).json(chats);
     } catch (error) {

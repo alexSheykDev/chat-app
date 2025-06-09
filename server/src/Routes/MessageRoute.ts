@@ -1,4 +1,3 @@
-// src/routes/MessageRoute.ts
 import { Router, Request, Response } from 'express';
 import { BaseRoute } from './BaseRoute';
 import { MessageController } from '../Controllers/MessageController';

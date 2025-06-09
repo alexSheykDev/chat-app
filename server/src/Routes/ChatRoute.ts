@@ -1,4 +1,3 @@
-// src/routes/ChatRoute.ts
 import { Router, Request, Response } from 'express';
 import { BaseRoute } from './BaseRoute';
 import { ChatController } from '../Controllers/ChatController';
