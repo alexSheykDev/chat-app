@@ -19,6 +19,10 @@ export class ChatRoute extends BaseRoute {
       this.controller.createChat(req, res)
     );
 
+    this.router.post('/group-chat', (req: Request, res: Response) =>
+      this.controller.createGroupChat(req, res)
+    );
+
     this.router.get('/:userId', (req: Request, res: Response) =>
       this.controller.findUserChats(req, res)
     );

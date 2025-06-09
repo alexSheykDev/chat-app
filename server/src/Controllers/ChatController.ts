@@ -30,6 +30,30 @@ export class ChatController {
     }
   }
 
+  public async createGroupChat(req: Request, res: Response): Promise<void> {
+    const { memberIds, groupName, adminId } = req.body;
+
+    if (!groupName || !Array.isArray(memberIds) || !adminId) {
+      res.status(400).json({ error: 'Missing required fields' });
+      return;
+    }
+
+    try {
+      const groupChat = await chatModel.create({
+        members: [...memberIds, adminId],
+        groupName,
+        adminId,
+        isGroup: true,
+      });
+
+      res.status(201).json(groupChat);
+    } catch (error) {
+      console.error('Create Group Chat Error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+
   public async findUserChats(req: Request, res: Response): Promise<void> {
     const { userId } = req.params;
 
