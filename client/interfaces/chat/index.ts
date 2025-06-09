@@ -1,7 +1,18 @@
+import { IMessage } from "../message";
+import { IUser } from "../user";
+
 export interface IChat {
   _id: string;
   members: string[];
   lastMessageId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IChatDetailed {
+  _id: string;
+  members: IUser[];
+  lastMessageId?: IMessage;
   createdAt: string;
   updatedAt: string;
 }
