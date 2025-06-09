@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 
 type ChatEntityProps = {
   id: string;
-  recipientName: string;
+  chatName: string;
   lastMessage: string | null;
   timestamp: string | null;
   isOnline?: boolean;
@@ -17,7 +17,7 @@ type ChatEntityProps = {
 
 const ChatEntity: FC<ChatEntityProps> = ({
   id,
-  recipientName,
+  chatName,
   lastMessage,
   timestamp,
   isOnline = false,
@@ -43,7 +43,7 @@ const ChatEntity: FC<ChatEntityProps> = ({
       </div>
 
       <div className="flex flex-col grow max-w-44">
-        <p className="text-sm font-semibold text-slate-900">{recipientName}</p>
+        <p className="text-sm font-semibold text-slate-900">{chatName}</p>
         <p className="text-sm text-gray-500 truncate">{lastMessage}</p>
       </div>
       <div className="flex flex-col justify-between items-end">

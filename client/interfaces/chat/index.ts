@@ -5,6 +5,9 @@ export interface IChat {
   _id: string;
   members: string[];
   lastMessageId?: string;
+  isGroup: boolean;
+  groupName?: string;
+  adminId?: string;
   createdAt: string;
   updatedAt: string;
 }

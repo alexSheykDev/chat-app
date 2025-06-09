@@ -17,6 +17,7 @@ interface ChatsListingProps {
 interface ChatDetails {
   id: string;
   recipientName: string;
+  groupName?: string;
   lastMessageText: string | null;
   lastMessageTimestamp: string | null;
 }
@@ -28,7 +29,6 @@ export default function ChatsListing({ userId, chats }: ChatsListingProps) {
   useEffect(() => {
     async function fetchChatDetails() {
       try {
-        // Fetch all chat details in parallel
         const chatDetailsPromises = chats.map(async (chat) => {
           const details = await getChatDetailsAction(
             userId,
@@ -38,6 +38,7 @@ export default function ChatsListing({ userId, chats }: ChatsListingProps) {
 
           return {
             id: chat._id,
+            groupName: chat.isGroup ? chat.groupName : undefined,
             recipientName: details ? details.recipientName : "",
             lastMessageText: details ? details.lastMessageText : "",
             lastMessageTimestamp:
@@ -61,8 +62,8 @@ export default function ChatsListing({ userId, chats }: ChatsListingProps) {
     if (!socket || !isConnected) return;
 
     const handleNewMessage = (newMessage: IMessage) => {
-      setChatDetails((prevChatDetails) => {
-        return prevChatDetails.map((chat) =>
+      setChatDetails((prevChatDetails) =>
+        prevChatDetails.map((chat) =>
           chat.id === newMessage.chatId
             ? {
                 ...chat,
@@ -70,8 +71,8 @@ export default function ChatsListing({ userId, chats }: ChatsListingProps) {
                 lastMessageTimestamp: formatTo12HourTime(newMessage.updatedAt),
               }
             : chat,
-        );
-      });
+        ),
+      );
     };
 
     socket.on("updateChatDetails", handleNewMessage);
@@ -84,9 +85,9 @@ export default function ChatsListing({ userId, chats }: ChatsListingProps) {
   const isRecipientOnline = (userId: string, chatId: string) => {
     const chatMembers =
       chats.find((chat) => chat._id === chatId)?.members || [];
-    const recipiendId =
+    const recipientId =
       chatMembers.find((memberId) => memberId !== userId) || "";
-    return onlineUsers.includes(recipiendId);
+    return onlineUsers.includes(recipientId);
   };
 
   return (
@@ -97,7 +98,7 @@ export default function ChatsListing({ userId, chats }: ChatsListingProps) {
         <ChatEntity
           key={chat.id}
           id={chat.id}
-          recipientName={chat.recipientName}
+          chatName={chat.groupName || chat.recipientName}
           lastMessage={chat.lastMessageText}
           timestamp={chat.lastMessageTimestamp}
           isPinned
