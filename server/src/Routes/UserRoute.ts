@@ -1,4 +1,3 @@
-// src/routes/UserRoute.ts
 import { Router, Request, Response } from 'express';
 import { BaseRoute } from './BaseRoute';
 import { UserController } from '../Controllers/UserController';

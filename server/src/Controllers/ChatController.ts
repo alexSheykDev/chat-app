@@ -88,6 +88,32 @@ export class ChatController {
     }
   }
 
+  public async findChatById(req: Request, res: Response): Promise<void> {
+    const { chatId } = req.params;
+    
+    if (!chatId || !Types.ObjectId.isValid(chatId)) {
+      res.status(400).json({ error: 'Invalid or missing chatId' });
+      return;
+    }
+  
+    try {
+      const chat = await chatModel.findById(chatId)
+        .populate('members', '-password')
+        .populate('lastMessageId');
+    
+      if (!chat) {
+        res.status(404).json({ error: 'Chat not found' });
+        return;
+      }
+    
+      res.status(200).json(chat);
+    } catch (error) {
+      console.error('Find Chat By ID Error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+
   public async updateChatLastMessage(req: Request, res: Response): Promise<void> {
     const { chatId, messageId } = req.params;
 

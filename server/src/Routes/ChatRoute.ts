@@ -22,12 +22,16 @@ export class ChatRoute extends BaseRoute {
       this.controller.createGroupChat(req, res)
     );
 
-    this.router.get('/:userId', (req: Request, res: Response) =>
-      this.controller.findUserChats(req, res)
+     this.router.get('/find/:firstId/:secondId', (req: Request, res: Response) =>
+      this.controller.findChat(req, res)
     );
 
-    this.router.get('/find/:firstId/:secondId', (req: Request, res: Response) =>
-      this.controller.findChat(req, res)
+    this.router.get('/:chatId/find', (req: Request, res: Response) =>
+      this.controller.findChatById(req, res)
+    );
+
+    this.router.get('/:userId', (req: Request, res: Response) =>
+      this.controller.findUserChats(req, res)
     );
 
     this.router.patch('/:chatId/:messageId', (req: Request, res: Response) =>

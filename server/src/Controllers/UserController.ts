@@ -1,4 +1,3 @@
-// src/controllers/UserController.ts
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import validator from 'validator';
