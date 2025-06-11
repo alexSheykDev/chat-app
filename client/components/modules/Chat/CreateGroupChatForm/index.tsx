@@ -93,23 +93,25 @@ export function CreateGroupChatForm() {
           <div className="space-y-2">
             <label className="block text-sm font-medium">Select Members</label>
             <div className="max-h-52 overflow-y-auto space-y-2">
-              {users?.map((user) => (
-                <div key={user._id} className="flex items-center gap-2">
-                  <Checkbox
-                    id={user._id}
-                    checked={selectedMembers.includes(user._id)}
-                    onCheckedChange={(checked) => {
-                      const newValue = checked
-                        ? [...selectedMembers, user._id]
-                        : selectedMembers.filter((id) => id !== user._id);
-                      setValue("members", newValue);
-                    }}
-                  />
-                  <label htmlFor={user._id} className="text-sm">
-                    {user.name} ({user.email})
-                  </label>
-                </div>
-              ))}
+              {users
+                ?.filter((user) => user._id !== session?.user?.id)
+                ?.map((user) => (
+                  <div key={user._id} className="flex items-center gap-2">
+                    <Checkbox
+                      id={user._id}
+                      checked={selectedMembers.includes(user._id)}
+                      onCheckedChange={(checked) => {
+                        const newValue = checked
+                          ? [...selectedMembers, user._id]
+                          : selectedMembers.filter((id) => id !== user._id);
+                        setValue("members", newValue);
+                      }}
+                    />
+                    <label htmlFor={user._id} className="text-sm">
+                      {user.name} ({user.email})
+                    </label>
+                  </div>
+                ))}
             </div>
             {errors.members && (
               <p className="text-sm text-red-500">Select at least one member</p>
