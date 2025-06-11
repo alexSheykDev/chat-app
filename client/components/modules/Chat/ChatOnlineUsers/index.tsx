@@ -10,12 +10,22 @@ import { useRouter } from "next/navigation";
 import { IUser } from "@/interfaces/user";
 import { IChat } from "@/interfaces/chat";
 import { CreateGroupChatForm } from "../CreateGroupChatForm";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { MoreHorizontal } from "lucide-react";
 
 interface ChatOnlineUsersProps {
   chats: IChat[];
+  refetchChatListing: () => void;
 }
 
-export default function ChatOnlineUsers({ chats }: ChatOnlineUsersProps) {
+export default function ChatOnlineUsers({
+  chats,
+  refetchChatListing,
+}: ChatOnlineUsersProps) {
   const [users, setUsers] = useState<IUser[]>([]);
   const { onlineUsers } = useSocket();
   const { data: session } = useSession();
@@ -78,8 +88,17 @@ export default function ChatOnlineUsers({ chats }: ChatOnlineUsersProps) {
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">Online Now</h2>
-        <CreateGroupChatForm />
-        <p className="text-xs text-gray-500">More</p>
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="text-xs text-gray-500 hover:text-black flex items-center gap-1">
+              <MoreHorizontal className="h-4 w-4" />
+              More
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-48 p-2 space-y-2">
+            <CreateGroupChatForm refetchChatListing={refetchChatListing} />
+          </PopoverContent>
+        </Popover>
       </div>
 
       <div className="flex flex-nowrap gap-x-4 overflow-scroll">

@@ -17,10 +17,10 @@ export default function ChatsListing({ userId }: ChatsListingProps) {
   const { onlineUsers, socket, isConnected } = useSocket();
   const queryClient = useQueryClient();
 
-  const { data: chats = [] } = useQuery({
+  const { data: chats = [], refetch: refetchChatListing } = useQuery({
     queryKey: ["chats", userId],
     queryFn: () => getUserChatsAction(userId),
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
   });
 
   const { data: chatDetails = [] } = useQuery({
@@ -77,7 +77,7 @@ export default function ChatsListing({ userId }: ChatsListingProps) {
 
   return (
     <div className="w-80 border-r border-gray-300">
-      <ChatOnlineUsers chats={chats} />
+      <ChatOnlineUsers chats={chats} refetchChatListing={refetchChatListing} />
       <h2 className="text-lg font-semibold px-4 mb-2">Messages</h2>
       {chatDetails.map((chat) => (
         <ChatEntity

@@ -24,7 +24,11 @@ interface CreateGroupChatFormValues {
   members: string[];
 }
 
-export function CreateGroupChatForm() {
+export function CreateGroupChatForm({
+  refetchChatListing,
+}: {
+  refetchChatListing: () => void;
+}) {
   const [open, setOpen] = useState(false);
   const { data: session } = useSession();
 
@@ -62,6 +66,7 @@ export function CreateGroupChatForm() {
       });
       reset();
       setOpen(false);
+      refetchChatListing();
     } catch (error) {
       console.error("Group creation failed", error);
     }
