@@ -1,92 +1,77 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import getChatDetailsAction from "@/actions/chat/getChatDetailsAction";
-import ChatEntity from "../ChatEntity";
-import formatTo12HourTime from "@/lib/helpers/formatTo12HourTime";
-import ChatOnlineUsers from "../ChatOnlineUsers";
-import { IChat } from "@/interfaces/chat";
+import { useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSocket } from "../../ClientProviders/SocketProvider";
-import { IMessage } from "@/interfaces/message";
+import ChatEntity from "../ChatEntity";
+import ChatOnlineUsers from "../ChatOnlineUsers";
+import formatTo12HourTime from "@/lib/helpers/formatTo12HourTime";
+import getChatDetailsAction from "@/actions/chat/getChatDetailsAction";
+import getUserChatsAction from "@/actions/chat/getUserChatsAction";
 
 interface ChatsListingProps {
   userId: string;
-  chats: IChat[];
 }
 
-interface ChatDetails {
-  id: string;
-  recipientName: string;
-  groupName?: string;
-  lastMessageText: string | null;
-  lastMessageTimestamp: string | null;
-}
-
-export default function ChatsListing({ userId, chats }: ChatsListingProps) {
-  const [chatDetails, setChatDetails] = useState<ChatDetails[]>([]);
+export default function ChatsListing({ userId }: ChatsListingProps) {
   const { onlineUsers, socket, isConnected } = useSocket();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    async function fetchChatDetails() {
-      try {
-        const chatDetailsPromises = chats.map(async (chat) => {
-          const details = await getChatDetailsAction(
-            userId,
-            chat.members,
-            chat.lastMessageId,
-          );
+  const { data: chats = [] } = useQuery({
+    queryKey: ["chats", userId],
+    queryFn: () => getUserChatsAction(userId),
+    refetchOnWindowFocus: false,
+  });
 
-          return {
-            id: chat._id,
-            groupName: chat.isGroup ? chat.groupName : undefined,
-            recipientName: details ? details.recipientName : "",
-            lastMessageText: details ? details.lastMessageText : "",
-            lastMessageTimestamp:
-              details && details.lastMessageTimestamp
-                ? formatTo12HourTime(details.lastMessageTimestamp)
-                : null,
-          } as ChatDetails;
-        });
+  const { data: chatDetails = [] } = useQuery({
+    queryKey: ["chatDetails", userId],
+    queryFn: async () => {
+      const chatDetailsPromises = chats.map(async (chat) => {
+        const details = await getChatDetailsAction(
+          userId,
+          chat.members,
+          chat.lastMessageId,
+        );
 
-        const resolvedChatDetails = await Promise.all(chatDetailsPromises);
-        setChatDetails(resolvedChatDetails);
-      } catch (error) {
-        console.error("Error fetching chat details:", error);
-      }
-    }
+        return {
+          id: chat._id,
+          groupName: chat.isGroup ? chat.groupName : undefined,
+          recipientName: details?.recipientName || "Unknown",
+          lastMessageText: details?.lastMessageText || "",
+          lastMessageTimestamp: details?.lastMessageTimestamp
+            ? formatTo12HourTime(details.lastMessageTimestamp)
+            : null,
+          unreadCount: chat.unreadCount || 0,
+        };
+      });
 
-    fetchChatDetails();
-  }, [userId, chats]);
+      return Promise.all(chatDetailsPromises);
+    },
+    enabled: chats.length > 0, // wait for chats to be loaded
+    refetchOnWindowFocus: false,
+  });
 
   useEffect(() => {
     if (!socket || !isConnected) return;
 
-    const handleNewMessage = (newMessage: IMessage) => {
-      setChatDetails((prevChatDetails) =>
-        prevChatDetails.map((chat) =>
-          chat.id === newMessage.chatId
-            ? {
-                ...chat,
-                lastMessageText: newMessage.text,
-                lastMessageTimestamp: formatTo12HourTime(newMessage.updatedAt),
-              }
-            : chat,
-        ),
-      );
+    const handleMessageUpdate = () => {
+      queryClient.invalidateQueries({ queryKey: ["chatDetails", userId] });
+      queryClient.invalidateQueries({ queryKey: ["chats", userId] });
     };
 
-    socket.on("updateChatDetails", handleNewMessage);
+    socket.on("updateChatDetails", handleMessageUpdate);
+    socket.on("chat:unread-updated", handleMessageUpdate);
 
     return () => {
-      socket.off("updateChatDetails", handleNewMessage);
+      socket.off("updateChatDetails", handleMessageUpdate);
+      socket.off("chat:unread-updated", handleMessageUpdate);
     };
-  }, [socket, isConnected]);
+  }, [socket, isConnected, queryClient, userId]);
 
-  const isRecipientOnline = (userId: string, chatId: string) => {
+  const isRecipientOnline = (chatId: string) => {
     const chatMembers =
       chats.find((chat) => chat._id === chatId)?.members || [];
-    const recipientId =
-      chatMembers.find((memberId) => memberId !== userId) || "";
+    const recipientId = chatMembers.find((id) => id !== userId) || "";
     return onlineUsers.includes(recipientId);
   };
 
@@ -102,7 +87,8 @@ export default function ChatsListing({ userId, chats }: ChatsListingProps) {
           lastMessage={chat.lastMessageText}
           timestamp={chat.lastMessageTimestamp}
           isPinned
-          isOnline={isRecipientOnline(userId, chat.id)}
+          isOnline={isRecipientOnline(chat.id)}
+          unreadMessages={chat.unreadCount}
         />
       ))}
     </div>

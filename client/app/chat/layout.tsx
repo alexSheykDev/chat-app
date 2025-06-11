@@ -1,4 +1,3 @@
-import getUserChatsAction from "@/actions/chat/getUserChatsAction";
 import ChatsListing from "@/components/modules/Chat/ChatsListing";
 import Header from "@/components/modules/Header";
 import { getServerSession } from "next-auth";
@@ -18,13 +17,11 @@ export default async function ChatLayout({
 
   const { user } = session;
 
-  const chats = await getUserChatsAction(user.id);
-
   return (
     <div className="flex flex-col h-screen">
       <Header />
       <div className="flex grow h-[calc(100%-64px)]">
-        <ChatsListing userId={user?.id} chats={chats} />
+        <ChatsListing userId={user?.id} />
         {children}
       </div>
     </div>

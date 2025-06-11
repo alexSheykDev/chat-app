@@ -65,6 +65,12 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     };
   }, [session?.user.id, toast]);
 
+  useEffect(() => {
+    if (socket && isConnected && session && session.user.id) {
+      socket.emit("joinUserRoom", { userId: session.user.id });
+    }
+  }, [socket, isConnected, session?.user.id, session]);
+
   return (
     <SocketContext.Provider value={{ socket, isConnected, onlineUsers }}>
       {children}

@@ -43,7 +43,8 @@ export default function ChatOnlineUsers({ chats }: ChatOnlineUsersProps) {
       const existingChat = chats.find(
         (chat) =>
           chat.members.includes(userId) &&
-          chat.members.includes(session.user.id),
+          chat.members.includes(session.user.id) &&
+          !chat.isGroup,
       );
 
       if (existingChat) {

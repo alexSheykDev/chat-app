@@ -7,6 +7,7 @@ export interface IChat {
   lastMessageId?: string;
   isGroup: boolean;
   groupName?: string;
+  unreadCount: number;
   adminId?: string;
   createdAt: string;
   updatedAt: string;
@@ -16,6 +17,10 @@ export interface IChatDetailed {
   _id: string;
   members: IUser[];
   lastMessageId?: IMessage;
+  isGroup: boolean;
+  groupName?: string;
+  unreadCount: number;
+  adminId?: string;
   createdAt: string;
   updatedAt: string;
 }
