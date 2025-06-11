@@ -22,7 +22,15 @@ export class ChatRoute extends BaseRoute {
       this.controller.createGroupChat(req, res)
     );
 
-     this.router.get('/find/:firstId/:secondId', (req: Request, res: Response) =>
+    this.router.post('/group/:chatId/add-users', (req: Request, res: Response) =>
+      this.controller.addUsersToGroupChat(req, res)
+    );
+
+    this.router.post('/group/:chatId/leave', (req: Request, res: Response) =>
+      this.controller.leaveGroupChat(req, res)
+    );
+
+    this.router.get('/find/:firstId/:secondId', (req: Request, res: Response) =>
       this.controller.findChat(req, res)
     );
 
@@ -32,6 +40,10 @@ export class ChatRoute extends BaseRoute {
 
     this.router.get('/:userId', (req: Request, res: Response) =>
       this.controller.findUserChats(req, res)
+    );
+
+    this.router.patch('/:chatId/read', (req: Request, res: Response) =>
+      this.controller.updateChatLastRead(req, res)
     );
 
     this.router.patch('/:chatId/:messageId', (req: Request, res: Response) =>
